@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 const server = http.createServer(app);
 
-const io = socketio(server);
+// const io = socketio(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -20,14 +20,17 @@ let micSocket = {};
 let videoSocket = {};
 let roomBoard = {};
 
-const turnServer = new Turn({
-  authMech: 'long-term',
-  credentials: {
-    username: "xolani_password"
-  }
-});
 
-turnServer.start();
+const io = require("socket.io")(server, {
+    stun: {
+        urls: ['stun:stun.l.google.com:19302', 'tun:stun1.l.google.com:19302'],
+    },
+    turn: {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "b109b2b686ca24c190360ea7",
+        credential: "BfLeHjyfImbboP9d",
+    },
+});
 
 io.on('connect', socket => {
 
