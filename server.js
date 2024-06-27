@@ -3,7 +3,8 @@ const express = require('express')
 const http = require('http')
 const moment = require('moment');
 const socketio = require('socket.io');
-const PORT = process.env.PORT || 3000;
+const Turn = require('node-turn');
+const PORT = process.env.PORT || 4000;
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,15 @@ let socketname = {};
 let micSocket = {};
 let videoSocket = {};
 let roomBoard = {};
+
+const turnServer = new Turn({
+  authMech: 'long-term',
+  credentials: {
+    username: "xolani_password"
+  }
+});
+
+turnServer.start();
 
 io.on('connect', socket => {
 

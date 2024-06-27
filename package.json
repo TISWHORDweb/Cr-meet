@@ -13,11 +13,11 @@
   "dependencies": {
     "express": "^4.17.1",
     "moment": "^2.27.0",
+    "node-turn": "^0.0.6",
     "nodemon": "^2.0.4",
     "socket.io": "^2.3.0",
+    "turn-js": "^0.5.4",
     "uuid": "^8.3.0",
     "webrtc-adapter": "^7.7.0"
   }
 }
-
-
