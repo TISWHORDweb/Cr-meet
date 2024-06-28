@@ -111,3 +111,97 @@ mic.addEventListener('click', () => {
     }
 })
 //
+
+const iceServers = [
+    { urls: 'stun:stun.l.google.com:19302' }, 
+    {
+        urls: 'turn:13.246.44.15:3478',
+        username: 'emmanuel_xolani_aws',
+        credential: '=hB9|Dh#123,'
+    },
+    {
+        urls: 'turn:13.246.44.15:3478?transport=tcp',
+        username: 'emmanuel_xolani_aws',
+        credential: '=hB9|Dh#123,'
+    }
+];
+
+const config = { iceServers: iceServers };
+
+let localStream;
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+        localStream = stream;
+        document.querySelector('.video-self').srcObject = localStream;
+    })
+    .catch(error => {
+        console.error('Error accessing media devices.', error);
+    });
+
+const peerConnection = new RTCPeerConnection(config);
+peerConnection.addStream(localStream);
+
+// Add event listeners for ICE candidates and negotiation
+peerConnection.onicecandidate = event => {
+    if (event.candidate) {
+        socket.emit('new icecandidate', event.candidate, targetSocketId);
+    }
+};
+
+peerConnection.onaddstream = event => {
+    const remoteVideo = document.createElement('video');
+    remoteVideo.srcObject = event.stream;
+    document.body.appendChild(remoteVideo);
+};
+
+// Handling incoming ICE candidates
+socket.on('new icecandidate', (candidate, fromSocketId) => {
+    const iceCandidate = new RTCIceCandidate(candidate);
+    peerConnection.addIceCandidate(iceCandidate).catch(error => {
+        console.error('Error adding received ice candidate', error);
+    });
+});
+
+// Create offer
+peerConnection.createOffer()
+    .then(offer => {
+        return peerConnection.setLocalDescription(offer);
+    })
+    .then(() => {
+        socket.emit('video-offer', peerConnection.localDescription, targetSocketId);
+    })
+    .catch(error => {
+        console.error('Error creating offer: ', error);
+    });
+
+// Handling video offers and answers
+socket.on('video-offer', (offer, fromSocketId, username, micStatus, videoStatus) => {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+        .then(() => {
+            return navigator.mediaDevices.getUserMedia(mediaConstraints);
+        })
+        .then(stream => {
+            localStream = stream;
+            document.querySelector('.video-self').srcObject = localStream;
+            peerConnection.addStream(localStream);
+        })
+        .then(() => {
+            return peerConnection.createAnswer();
+        })
+        .then(answer => {
+            return peerConnection.setLocalDescription(answer);
+        })
+        .then(() => {
+            socket.emit('video-answer', peerConnection.localDescription, fromSocketId);
+        })
+        .catch(error => {
+            console.error('Error handling offer: ', error);
+        });
+});
+
+socket.on('video-answer', (answer, fromSocketId) => {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
+        .catch(error => {
+            console.error('Error setting remote description: ', error);
+        });
+});
