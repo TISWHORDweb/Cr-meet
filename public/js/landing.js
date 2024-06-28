@@ -13,7 +13,7 @@ let mediaConstraints = { video: true, audio: true };
 navigator.mediaDevices.getUserMedia(mediaConstraints)
     .then(localstream => {
         videoCont.srcObject = localstream;
-    })
+    });
 
 function uuidv4() {
     return 'xxyxyxxyx'.replace(/[xy]/g, function (c) {
@@ -39,7 +39,6 @@ createButton.addEventListener('click', (e) => {
         }
     }, 500);
 
-    //const name = nameField.value;
     location.href = `/room.html?room=${uuidv4()}`;
 });
 
@@ -51,7 +50,7 @@ joinBut.addEventListener('click', (e) => {
     }
     const code = codeCont.value;
     location.href = `/room.html?room=${code}`;
-})
+});
 
 codeCont.addEventListener('change', (e) => {
     e.preventDefault();
@@ -59,7 +58,7 @@ codeCont.addEventListener('change', (e) => {
         codeCont.classList.remove('roomcode-error');
         return;
     }
-})
+});
 
 cam.addEventListener('click', () => {
     if (camAllowed) {
@@ -67,7 +66,7 @@ cam.addEventListener('click', () => {
         navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(localstream => {
                 videoCont.srcObject = localstream;
-            })
+            });
 
         cam.classList = "nodevice";
         cam.innerHTML = `<i class="fas fa-video-slash"></i>`;
@@ -78,13 +77,13 @@ cam.addEventListener('click', () => {
         navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(localstream => {
                 videoCont.srcObject = localstream;
-            })
+            });
 
         cam.classList = "device";
         cam.innerHTML = `<i class="fas fa-video"></i>`;
         camAllowed = 1;
     }
-})
+});
 
 mic.addEventListener('click', () => {
     if (micAllowed) {
@@ -92,7 +91,7 @@ mic.addEventListener('click', () => {
         navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(localstream => {
                 videoCont.srcObject = localstream;
-            })
+            });
 
         mic.classList = "nodevice";
         mic.innerHTML = `<i class="fas fa-microphone-slash"></i>`;
@@ -103,14 +102,13 @@ mic.addEventListener('click', () => {
         navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(localstream => {
                 videoCont.srcObject = localstream;
-            })
+            });
 
         mic.innerHTML = `<i class="fas fa-microphone"></i>`;
         mic.classList = "device";
         micAllowed = 1;
     }
-})
-//
+});
 
 const iceServers = [
     { urls: 'stun:stun.l.google.com:19302' }, 
