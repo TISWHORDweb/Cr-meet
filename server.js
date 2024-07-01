@@ -11,6 +11,10 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/test', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test.html'));
+});
+
 
 let rooms = {};
 let socketroom = {};
@@ -99,7 +103,7 @@ io.on('connect', socket => {
 const turnServer = new Turn({
     authMech: 'long-term',
     credentials: {
-        emmanuel_xolani_aws: '=hB9|Dh#123,'
+        emmanuel_xolani_aws: '=hB9|Dh#123'
     },
     listeningPort: 3478,
     relayIps: ['13.246.44.15'],
