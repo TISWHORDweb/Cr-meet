@@ -15,7 +15,6 @@ app.get('/test', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test.html'));
 });
 
-
 let rooms = {};
 let socketroom = {};
 let socketname = {};

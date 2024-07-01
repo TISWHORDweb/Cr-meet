@@ -4,6 +4,7 @@ const codeCont = document.querySelector('#roomcode');
 const joinBut = document.querySelector('#joinroom');
 const mic = document.querySelector('#mic');
 const cam = document.querySelector('#webcam');
+const remoteVideo = document.querySelector('#remoteVideo');  // Remote video element
 
 let micAllowed = 1;
 let camAllowed = 1;
@@ -13,6 +14,7 @@ let mediaConstraints = { video: true, audio: true };
 navigator.mediaDevices.getUserMedia(mediaConstraints)
     .then(localstream => {
         videoCont.srcObject = localstream;
+        localStream = localstream;
     });
 
 function uuidv4() {
@@ -142,7 +144,7 @@ socket.on('join room', (peerIds, socketname, micSocket, videoSocket) => {
     if (peerIds) {
         peerIds.forEach(peerId => {
             const peerConnection = new RTCPeerConnection(config);
-            peerConnection.addStream(localStream);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
             peerConnection.onicecandidate = event => {
                 if (event.candidate) {
@@ -150,8 +152,11 @@ socket.on('join room', (peerIds, socketname, micSocket, videoSocket) => {
                 }
             };
 
-            peerConnection.onaddstream = event => {
+            peerConnection.ontrack = event => {
                 // Handle remote stream
+                if (event.streams && event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                }
             };
 
             peerConnection.onconnectionstatechange = () => {
@@ -175,7 +180,7 @@ socket.on('video-offer', (offer, peerId, name, micState, videoState) => {
     const peerConnection = new RTCPeerConnection(config);
     peerConnections[peerId] = peerConnection;
 
-    peerConnection.addStream(localStream);
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
     peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
         .then(() => peerConnection.createAnswer())
@@ -190,8 +195,11 @@ socket.on('video-offer', (offer, peerId, name, micState, videoState) => {
         }
     };
 
-    peerConnection.onaddstream = event => {
+    peerConnection.ontrack = event => {
         // Handle remote stream
+        if (event.streams && event.streams[0]) {
+            remoteVideo.srcObject = event.streams[0];
+        }
     };
 });
 
